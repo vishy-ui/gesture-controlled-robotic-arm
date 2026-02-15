@@ -1,0 +1,11 @@
+----LIBRARIES TO INSTALL----
+opencv-python==4.9.0.80
+mediapipe==0.10.10
+numpy==1.26.4
+pyserial==3.5
+protobuf==3.20.3
+
+
+----MAKING A VIRTUAL ENVIRONMENT----
+python -m venv venv
+venv\Scripts\activate
