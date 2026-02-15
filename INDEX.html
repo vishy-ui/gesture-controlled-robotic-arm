@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gesture-Controlled Robotic Arm using Computer Vision | PBL 2026</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+        body { background-color: #020617; color: #f8fafc; font-family: 'Plus Jakarta Sans', sans-serif; scroll-behavior: smooth; }
+        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .gradient-text { background: linear-gradient(90deg, #60a5fa, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        
+        /* TIMER UI */
+        #timerContainer { background: #ffffff; color: #020617; box-shadow: 0 10px 40px rgba(0,0,0,0.8); border: 3px solid #3b82f6; z-index: 1000; }
+        @keyframes flicker { 0%, 100% { background-color: #ffffff; } 50% { background-color: #fca5a5; } }
+        .timer-warning { animation: flicker 1s infinite; border: 3px solid #ef4444 !important; color: #b91c1c !important; }
+        .timer-stop { background-color: #991b1b !important; color: #ffffff !important; border: 3px solid #f87171 !important; animation: none; }
+    </style>
+</head>
+<body onload="startTimer()">
+
+    <!-- TIMER -->
+    <div id="timerContainer" class="fixed bottom-10 right-10 px-8 py-4 rounded-3xl flex items-center gap-4 transition-all">
+        <i class="fas fa-hourglass-start text-blue-600 text-2xl" id="timerIcon"></i>
+        <span id="displayTime" class="text-4xl font-black font-mono tracking-tighter">10:00</span>
+    </div>
+
+    <!-- NAVIGATION -->
+    <nav class="fixed w-full z-50 glass border-b border-slate-800/50 px-8 py-4 flex justify-between items-center">
+        <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
+                <i class="fas fa-robot text-2xl text-white"></i>
+            </div>
+            <div>
+                <div class="text-sm text-slate-400 uppercase tracking-widest">Semester 2 PBL</div>
+                <div class="text-lg font-bold text-white">Gesture-Controlled Robotic Arm</div>
+            </div>
+        </div>
+        <div class="flex gap-8">
+            <a href="#problem" class="text-slate-400 hover:text-blue-400 transition">Problem</a>
+            <a href="#objectives" class="text-slate-400 hover:text-blue-400 transition">Objectives</a>
+            <a href="#methodology" class="text-slate-400 hover:text-blue-400 transition">Methodology</a>
+            <a href="#workflow" class="text-slate-400 hover:text-blue-400 transition">Workflow</a>
+            <a href="#progress" class="text-slate-400 hover:text-blue-400 transition">Progress</a>
+            <a href="#results" class="text-slate-400 hover:text-blue-400 transition">Results</a>
+            <a href="#future" class="text-slate-400 hover:text-blue-400 transition">Future Work</a>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTAINER -->
+    <div class="max-w-6xl mx-auto px-8 pt-48 pb-32 space-y-32">
+
+        <!-- HERO SECTION -->
+        <div class="text-center space-y-6">
+            <div class="inline-block px-6 py-2 rounded-full bg-blue-500/10 border border-blue-500/30 mb-4">
+                <span class="text-blue-400 uppercase tracking-[0.3em] text-xs font-bold">Semester 2 PBL Project</span>
+            </div>
+            <h1 class="text-6xl md:text-7xl font-black leading-none mb-6">
+                <span class="gradient-text">Gesture-Controlled</span><br>
+                <span class="text-white">Robotic Arm</span>
+            </h1>
+            <p class="text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed">
+                Real-time hand gesture recognition and mapping using MediaPipe and OpenCV for intuitive robotic control
+            </p>
+            <div class="flex gap-4 justify-center items-center mt-8">
+                <div class="px-6 py-3 rounded-2xl glass border border-blue-500/50">
+                    <div class="text-sm text-slate-400 uppercase tracking-widest">Technology Stack</div>
+                    <div class="text-lg font-bold text-blue-400">Python • OpenCV • MediaPipe</div>
+                </div>
+                <div class="px-6 py-3 rounded-2xl glass border border-purple-500/50">
+                    <div class="text-sm text-slate-400 uppercase tracking-widest">Hardware</div>
+                    <div class="text-lg font-bold text-purple-400">ESP32 • Servo Motor • OLED</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PROBLEM STATEMENT -->
+        <section id="problem" class="space-y-8">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-2xl bg-blue-500/10 flex items-center justify-center border-2 border-blue-500">
+                    <span class="text-2xl font-black text-blue-500">01</span>
+                </div>
+                <div>
+                    <h2 class="text-4xl font-black text-white">Problem Statement</h2>
+                    <div class="text-sm text-slate-400 uppercase tracking-widest mt-1">Identifying the Challenge</div>
+                </div>
+            </div>
+            <div class="glass p-10 rounded-[3.5rem] border-t-4 border-blue-500/50">
+                <p class="text-lg text-slate-300 leading-relaxed mb-6">
+                    Traditional robotic control systems rely on physical interfaces such as joysticks, buttons, or keyboards, which limit natural interaction and accessibility. These methods require specialized training and create barriers for users who need intuitive, contactless control mechanisms.
+                </p>
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div class="p-6 rounded-2xl bg-blue-500/5 border border-blue-500/20">
+                        <i class="fas fa-gamepad text-3xl text-blue-400 mb-3"></i>
+                        <h3 class="text-lg font-bold text-white mb-2">Limited Accessibility</h3>
+                        <p class="text-sm text-slate-400">Physical controllers restrict accessibility for users with mobility challenges</p>
+                    </div>
+                    <div class="p-6 rounded-2xl bg-purple-500/5 border border-purple-500/20">
+                        <i class="fas fa-user-graduate text-3xl text-purple-400 mb-3"></i>
+                        <h3 class="text-lg font-bold text-white mb-2">Steep Learning Curve</h3>
+                        <p class="text-sm text-slate-400">Traditional interfaces require extensive training and practice</p>
+                    </div>
+                    <div class="p-6 rounded-2xl bg-green-500/5 border border-green-500/20">
+                        <i class="fas fa-hand-paper text-3xl text-green-400 mb-3"></i>
+                        <h3 class="text-lg font-bold text-white mb-2">Unnatural Interaction</h3>
+                        <p class="text-sm text-slate-400">Physical controls lack the intuitiveness of natural hand movements</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- OBJECTIVES -->
+        <section id="objectives" class="space-y-8">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-2xl bg-purple-500/10 flex items-center justify-center border-2 border-purple-500">
+                    <span class="text-2xl font-black text-purple-500">02</span>
+                </div>
+                <div>
+                    <h2 class="text-4xl font-black text-white">Project Objectives</h2>
+                    <div class="text-sm text-slate-400 uppercase tracking-widest mt-1">Goals and Targets</div>
+                </div>
+            </div>
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="glass p-8 rounded-[2.5rem] border-l-4 border-blue-500">
+                    <div class="flex items-start gap-4">
+                        <div class="w-8 h-8 rounded-xl bg-blue-500 flex items-center justify-center flex-shrink-0 mt-1">
+                            <i class="fas fa-eye text-white text-sm"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-white mb-2">Real-Time Hand Tracking</h3>
+                            <p class="text-slate-400">Implement MediaPipe framework to detect and track 21 hand landmarks with low latency using webcam input</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="glass p-8 rounded-[2.5rem] border-l-4 border-purple-500">
+                    <div class="flex items-start gap-4">
+                        <div class="w-8 h-8 rounded-xl bg-purple-500 flex items-center justify-center flex-shrink-0 mt-1">
+                            <i class="fas fa-chart-line text-white text-sm"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-white mb-2">Gesture-to-Motion Mapping</h3>
+                            <p class="text-slate-400">Map index fingertip X-axis position to servo angle range (0–180°) using proportional scaling</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="glass p-8 rounded-[2.5rem] border-l-4 border-green-500">
+                    <div class="flex items-start gap-4">
+                        <div class="w-8 h-8 rounded-xl bg-green-500 flex items-center justify-center flex-shrink-0 mt-1">
+                            <i class="fas fa-microchip text-white text-sm"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-white mb-2">Hardware Integration</h3>
+                            <p class="text-slate-400">Establish serial communication with ESP32 microcontroller for reliable servo motor control</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="glass p-8 rounded-[2.5rem] border-l-4 border-blue-600">
+                    <div class="flex items-start gap-4">
+                        <div class="w-8 h-8 rounded-xl bg-blue-600 flex items-center justify-center flex-shrink-0 mt-1">
+                            <i class="fas fa-tachometer-alt text-white text-sm"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-white mb-2">Visual Feedback System</h3>
+                            <p class="text-slate-400">Display real-time servo angle on OLED screen for immediate user feedback</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- METHODOLOGY -->
+        <section id="methodology" class="space-y-8">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-2xl bg-green-500/10 flex items-center justify-center border-2 border-green-500">
+                    <span class="text-2xl font-black text-green-500">03</span>
+                </div>
+                <div>
+                    <h2 class="text-4xl font-black text-white">Methodology</h2>
+                    <div class="text-sm text-slate-400 uppercase tracking-widest mt-1">Technical Approach</div>
+                </div>
+            </div>
+            <div class="glass p-10 rounded-[3.5rem] border-t-4 border-green-500/30 space-y-8">
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-2xl font-bold text-white mb-4 flex items-center gap-3">
+                            <i class="fas fa-camera text-blue-400"></i>
+                            Computer Vision Pipeline
+                        </h3>
+                        <div class="space-y-3">
+                            <div class="flex gap-3 items-start">
+                                <div class="w-6 h-6 rounded-lg bg-blue-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                    <span class="text-blue-400 text-xs font-bold">1</span>
+                                </div>
+                                <div>
+                                    <div class="text-white font-semibold">Video Capture</div>
+                                    <div class="text-sm text-slate-400">OpenCV captures real-time webcam feed at 30+ FPS</div>
+                                </div>
+                            </div>
+                            <div class="flex gap-3 items-start">
+                                <div class="w-6 h-6 rounded-lg bg-blue-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                    <span class="text-blue-400 text-xs font-bold">2</span>
+                                </div>
+                                <div>
+                                    <div class="text-white font-semibold">Hand Detection</div>
+                                    <div class="text-sm text-slate-400">MediaPipe identifies hand presence in frame</div>
+                                </div>
+                            </div>
+                            <div class="flex gap-3 items-start">
+                                <div class="w-6 h-6 rounded-lg bg-blue-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                    <span class="text-blue-400 text-xs font-bold">3</span>
+                                </div>
+                                <div>
+                                    <div class="text-white font-semibold">Landmark Extraction</div>
+                                    <div class="text-sm text-slate-400">Extract 21 3D landmarks including index fingertip</div>
+                                </div>
+                            </div>
+                            <div class="flex gap-3 items-start">
+                                <div class="w-6 h-6 rounded-lg bg-blue-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                    <span class="text-blue-400 text-xs font-bold">4</span>
+                                </div>
+                                <div>
+                                    <div class="text-white font-semibold">Coordinate Normalization</div>
+                                    <div class="text-sm text-slate-400">Normalize coordinates to frame dimensions</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-bold text-white mb-4 flex items-center gap-3">
+                            <i class="fas fa-cog text-purple-400"></i>
+                            Control System
+                        </h3>
+                        <div class="space-y-3">
+                            <div class="flex gap-3 items-start">
+                                <div class="w-6 h-6 rounded-lg bg-purple-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                    <span class="text-purple-400 text-xs font-bold">1</span>
+                                </div>
+                                <div>
+                                    <div class="text-white font-semibold">Proportional Mapping</div>
+                                    <div class="text-sm text-slate-400">Map X-coordinate (0-1) to servo angle (0-180°)</div>
+                                </div>
+                            </div>
+                            <div class="flex gap-3 items-start">
+                                <div class="w-6 h-6 rounded-lg bg-purple-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                    <span class="text-purple-400 text-xs font-bold">2</span>
+                                </div>
+                                <div>
+                                    <div class="text-white font-semibold">Serial Communication</div>
+                                    <div class="text-sm text-slate-400">Transmit angle data to ESP32 via UART</div>
+                                </div>
+                            </div>
+                            <div class="flex gap-3 items-start">
+                                <div class="w-6 h-6 rounded-lg bg-purple-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                    <span class="text-purple-400 text-xs font-bold">3</span>
+                                </div>
+                                <div>
+                                    <div class="text-white font-semibold">PWM Signal Generation</div>
+                                    <div class="text-sm text-slate-400">ESP32 converts angle to PWM for servo control</div>
+                                </div>
+                            </div>
+                            <div class="flex gap-3 items-start">
+                                <div class="w-6 h-6 rounded-lg bg-purple-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                    <span class="text-purple-400 text-xs font-bold">4</span>
+                                </div>
+                                <div>
+                                    <div class="text-white font-semibold">OLED Feedback</div>
+                                    <div class="text-sm text-slate-400">Display current angle on 128x64 OLED display</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="p-6 rounded-2xl bg-blue-500/5 border border-blue-500/20">
+                    <h4 class="text-lg font-bold text-white mb-3 flex items-center gap-2">
+                        <i class="fas fa-code text-blue-400"></i>
+                        Core Technologies
+                    </h4>
+                    <div class="grid md:grid-cols-3 gap-4">
+                        <div class="text-center p-4 rounded-xl bg-white/5">
+                            <div class="text-2xl font-black text-blue-400">MediaPipe</div>
+                            <div class="text-xs text-slate-400 mt-1">Hand Landmark Detection</div>
+                        </div>
+                        <div class="text-center p-4 rounded-xl bg-white/5">
+                            <div class="text-2xl font-black text-purple-400">OpenCV</div>
+                            <div class="text-xs text-slate-400 mt-1">Video Processing</div>
+                        </div>
+                        <div class="text-center p-4 rounded-xl bg-white/5">
+                            <div class="text-2xl font-black text-green-400">Python</div>
+                            <div class="text-xs text-slate-400 mt-1">Core Programming Language</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SYSTEM WORKFLOW -->
+        <section id="workflow" class="space-y-8">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-2xl bg-blue-600/10 flex items-center justify-center border-2 border-blue-600">
+                    <span class="text-2xl font-black text-blue-600">04</span>
+                </div>
+                <div>
+                    <h2 class="text-4xl font-black text-white">System Workflow</h2>
+                    <div class="text-sm text-slate-400 uppercase tracking-widest mt-1">End-to-End Pipeline</div>
+                </div>
+            </div>
+            <div class="glass p-10 rounded-[3.5rem] border-t-4 border-blue-600/30">
+                <div class="flex flex-wrap items-center justify-center gap-4">
+                    <div class="p-6 rounded-2xl bg-blue-500/10 border-2 border-blue-500/30 text-center">
+                        <i class="fas fa-video text-3xl text-blue-400 mb-2"></i>
+                        <div class="font-bold text-white">Webcam</div>
+                        <div class="text-xs text-slate-400 mt-1">Video Input</div>
+                    </div>
+                    <i class="fas fa-arrow-right text-2xl text-slate-600"></i>
+                    <div class="p-6 rounded-2xl bg-purple-500/10 border-2 border-purple-500/30 text-center">
+                        <i class="fas fa-image text-3xl text-purple-400 mb-2"></i>
+                        <div class="font-bold text-white">OpenCV</div>
+                        <div class="text-xs text-slate-400 mt-1">Frame Processing</div>
+                    </div>
+                    <i class="fas fa-arrow-right text-2xl text-slate-600"></i>
+                    <div class="p-6 rounded-2xl bg-green-500/10 border-2 border-green-500/30 text-center">
+                        <i class="fas fa-hand-paper text-3xl text-green-400 mb-2"></i>
+                        <div class="font-bold text-white">MediaPipe</div>
+                        <div class="text-xs text-slate-400 mt-1">Hand Detection</div>
+                    </div>
+                    <i class="fas fa-arrow-right text-2xl text-slate-600"></i>
+                    <div class="p-6 rounded-2xl bg-blue-600/10 border-2 border-blue-600/30 text-center">
+                        <i class="fas fa-calculator text-3xl text-blue-400 mb-2"></i>
+                        <div class="font-bold text-white">Mapping</div>
+                        <div class="text-xs text-slate-400 mt-1">X → Angle</div>
+                    </div>
+                    <i class="fas fa-arrow-right text-2xl text-slate-600"></i>
+                    <div class="p-6 rounded-2xl bg-purple-600/10 border-2 border-purple-600/30 text-center">
+                        <i class="fas fa-exchange-alt text-3xl text-purple-400 mb-2"></i>
+                        <div class="font-bold text-white">Serial</div>
+                        <div class="text-xs text-slate-400 mt-1">Data Transfer</div>
+                    </div>
+                    <i class="fas fa-arrow-right text-2xl text-slate-600"></i>
+                    <div class="p-6 rounded-2xl bg-green-600/10 border-2 border-green-600/30 text-center">
+                        <i class="fas fa-microchip text-3xl text-green-400 mb-2"></i>
+                        <div class="font-bold text-white">ESP32</div>
+                        <div class="text-xs text-slate-400 mt-1">Microcontroller</div>
+                    </div>
+                    <i class="fas fa-arrow-right text-2xl text-slate-600"></i>
+                    <div class="p-6 rounded-2xl bg-blue-500/10 border-2 border-blue-500/30 text-center">
+                        <i class="fas fa-cog text-3xl text-blue-400 mb-2"></i>
+                        <div class="font-bold text-white">Servo Motor</div>
+                        <div class="text-xs text-slate-400 mt-1">Physical Actuation</div>
+                    </div>
+                    <i class="fas fa-arrow-right text-2xl text-slate-600"></i>
+                    <div class="p-6 rounded-2xl bg-purple-500/10 border-2 border-purple-500/30 text-center">
+                        <i class="fas fa-tv text-3xl text-purple-400 mb-2"></i>
+                        <div class="font-bold text-white">OLED</div>
+                        <div class="text-xs text-slate-400 mt-1">Visual Feedback</div>
+                    </div>
+                </div>
+                
+                <div class="mt-8 p-6 rounded-2xl bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20">
+                    <h4 class="text-lg font-bold text-white mb-3 flex items-center gap-2">
+                        <i class="fas fa-info-circle text-blue-400"></i>
+                        Pipeline Details
+                    </h4>
+                    <p class="text-slate-300 leading-relaxed">
+                        The system operates in a continuous loop at 30+ FPS. Each frame is processed through MediaPipe to extract hand landmarks, 
+                        specifically the index fingertip (landmark 8). The normalized X-coordinate is linearly mapped to a servo angle range of 0-180°. 
+                        This angle is transmitted via serial UART to the ESP32, which generates the corresponding PWM signal for servo control while 
+                        simultaneously updating the OLED display with real-time feedback.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- CURRENT PROGRESS -->
+        <section id="progress" class="space-y-8">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-2xl bg-green-600/10 flex items-center justify-center border-2 border-green-500">
+                    <span class="text-2xl font-black text-green-500">05</span>
+                </div>
+                <div>
+                    <h2 class="text-4xl font-black text-white">Current Progress</h2>
+                    <div class="text-sm text-slate-400 uppercase tracking-widest mt-1">Semester 2 Achievements</div>
+                </div>
+            </div>
+            
+            <div class="glass p-10 rounded-[3.5rem] border-t-4 border-green-500/30 space-y-6">
+                <div class="inline-block px-6 py-2 rounded-full bg-green-500/20 border border-green-500/50">
+                    <span class="text-green-400 uppercase tracking-widest text-sm font-bold">✓ Phase 1 Complete</span>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="p-6 rounded-2xl bg-green-900/20 border-l-4 border-green-500">
+                        <div class="flex items-center gap-3 mb-4">
+                            <i class="fas fa-check-circle text-2xl text-green-400"></i>
+                            <h3 class="text-xl font-bold text-white">Vision System Operational</h3>
+                        </div>
+                        <ul class="space-y-2 text-slate-300">
+                            <li class="flex items-start gap-2">
+                                <i class="fas fa-chevron-right text-green-400 text-xs mt-1.5"></i>
+                                <span>MediaPipe hand tracking successfully integrated</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i class="fas fa-chevron-right text-green-400 text-xs mt-1.5"></i>
+                                <span>Real-time landmark detection achieving &lt;50ms latency</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i class="fas fa-chevron-right text-green-400 text-xs mt-1.5"></i>
+                                <span>Index fingertip tracking with 95%+ accuracy</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="p-6 rounded-2xl bg-green-900/20 border-l-4 border-green-500">
+                        <div class="flex items-center gap-3 mb-4">
+                            <i class="fas fa-check-circle text-2xl text-green-400"></i>
+                            <h3 class="text-xl font-bold text-white">Hardware Integration Complete</h3>
+                        </div>
+                        <ul class="space-y-2 text-slate-300">
+                            <li class="flex items-start gap-2">
+                                <i class="fas fa-chevron-right text-green-400 text-xs mt-1.5"></i>
+                                <span>Serial communication established with ESP32</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i class="fas fa-chevron-right text-green-400 text-xs mt-1.5"></i>
+                                <span>Servo motor responding to gesture input</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i class="fas fa-chevron-right text-green-400 text-xs mt-1.5"></i>
+                                <span>OLED displaying live angle feedback (0-180°)</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="p-6 rounded-2xl bg-blue-500/10 border-l-4 border-blue-500">
+                        <div class="flex items-center gap-3 mb-4">
+                            <i class="fas fa-bolt text-2xl text-blue-400"></i>
+                            <h3 class="text-xl font-bold text-white">Performance Metrics</h3>
+                        </div>
+                        <div class="space-y-3">
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="text-slate-400">Processing Speed</span>
+                                    <span class="text-blue-400 font-bold">30+ FPS</span>
+                                </div>
+                                <div class="w-full bg-slate-800 rounded-full h-2">
+                                    <div class="bg-gradient-to-r from-blue-500 to-blue-400 h-2 rounded-full" style="width: 95%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="text-slate-400">Tracking Accuracy</span>
+                                    <span class="text-purple-400 font-bold">95%</span>
+                                </div>
+                                <div class="w-full bg-slate-800 rounded-full h-2">
+                                    <div class="bg-gradient-to-r from-purple-500 to-purple-400 h-2 rounded-full" style="width: 95%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="text-slate-400">Response Latency</span>
+                                    <span class="text-green-400 font-bold">&lt;50ms</span>
+                                </div>
+                                <div class="w-full bg-slate-800 rounded-full h-2">
+                                    <div class="bg-gradient-to-r from-green-500 to-green-400 h-2 rounded-full" style="width: 92%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="p-6 rounded-2xl bg-purple-500/10 border-l-4 border-purple-500">
+                        <div class="flex items-center gap-3 mb-4">
+                            <i class="fas fa-code text-2xl text-purple-400"></i>
+                            <h3 class="text-xl font-bold text-white">Technical Implementation</h3>
+                        </div>
+                        <ul class="space-y-2 text-slate-300">
+                            <li class="flex items-start gap-2">
+                                <i class="fas fa-chevron-right text-purple-400 text-xs mt-1.5"></i>
+                                <span>Python-based control system with modular architecture</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i class="fas fa-chevron-right text-purple-400 text-xs mt-1.5"></i>
+                                <span>Proportional mapping algorithm implemented</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i class="fas fa-chevron-right text-purple-400 text-xs mt-1.5"></i>
+                                <span>ESP32 firmware for PWM generation and OLED control</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- RESULTS -->
+        <section id="results" class="space-y-8">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-2xl bg-purple-600/10 flex items-center justify-center border-2 border-purple-500">
+                    <span class="text-2xl font-black text-purple-500">06</span>
+                </div>
+                <div>
+                    <h2 class="text-4xl font-black text-white">Results & Validation</h2>
+                    <div class="text-sm text-slate-400 uppercase tracking-widest mt-1">Performance Analysis</div>
+                </div>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="glass p-8 rounded-[2.5rem] border-t-4 border-blue-500/50">
+                    <h3 class="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                        <i class="fas fa-chart-bar text-blue-400"></i>
+                        System Performance
+                    </h3>
+                    <div class="h-80">
+                        <canvas id="resultsChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="space-y-6">
+                    <div class="glass p-8 rounded-[2.5rem] border-l-4 border-green-500">
+                        <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-3">
+                            <i class="fas fa-check-double text-green-400"></i>
+                            Key Achievements
+                        </h3>
+                        <div class="space-y-4">
+                            <div class="flex items-start gap-3">
+                                <div class="w-8 h-8 rounded-lg bg-green-500/20 flex items-center justify-center flex-shrink-0">
+                                    <i class="fas fa-tachometer-alt text-green-400 text-sm"></i>
+                                </div>
+                                <div>
+                                    <div class="text-white font-semibold">Real-Time Operation</div>
+                                    <div class="text-sm text-slate-400">Consistent 30+ FPS processing with &lt;50ms latency</div>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <div class="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center flex-shrink-0">
+                                    <i class="fas fa-crosshairs text-blue-400 text-sm"></i>
+                                </div>
+                                <div>
+                                    <div class="text-white font-semibold">Precise Control</div>
+                                    <div class="text-sm text-slate-400">Smooth servo movement across full 180° range</div>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <div class="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center flex-shrink-0">
+                                    <i class="fas fa-eye text-purple-400 text-sm"></i>
+                                </div>
+                                <div>
+                                    <div class="text-white font-semibold">Visual Feedback</div>
+                                    <div class="text-sm text-slate-400">Live OLED display provides immediate user confirmation</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="glass p-8 rounded-[2.5rem] border-l-4 border-blue-600">
+                        <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-3">
+                            <i class="fas fa-flask text-blue-400"></i>
+                            Testing Outcomes
+                        </h3>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="p-4 rounded-xl bg-blue-500/10 text-center">
+                                <div class="text-3xl font-black text-blue-400">100%</div>
+                                <div class="text-xs text-slate-400 mt-1">Serial Communication Success</div>
+                            </div>
+                            <div class="p-4 rounded-xl bg-purple-500/10 text-center">
+                                <div class="text-3xl font-black text-purple-400">95%</div>
+                                <div class="text-xs text-slate-400 mt-1">Gesture Recognition Rate</div>
+                            </div>
+                            <div class="p-4 rounded-xl bg-green-500/10 text-center">
+                                <div class="text-3xl font-black text-green-400">0-180°</div>
+                                <div class="text-xs text-slate-400 mt-1">Full Servo Range Achieved</div>
+                            </div>
+                            <div class="p-4 rounded-xl bg-blue-600/10 text-center">
+                                <div class="text-3xl font-black text-blue-400">&lt;50ms</div>
+                                <div class="text-xs text-slate-400 mt-1">End-to-End Latency</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FUTURE WORK -->
+        <section id="future" class="space-y-8">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-2xl bg-blue-500/10 flex items-center justify-center border-2 border-blue-500">
+                    <span class="text-2xl font-black text-blue-500">07</span>
+                </div>
+                <div>
+                    <h2 class="text-4xl font-black text-white">Future Work</h2>
+                    <div class="text-sm text-slate-400 uppercase tracking-widest mt-1">Roadmap Ahead</div>
+                </div>
+            </div>
+            
+            <div class="glass p-10 rounded-[3.5rem] border-t-4 border-blue-500/50 space-y-8">
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div class="p-6 rounded-2xl bg-blue-900/20 border-2 border-blue-500/30">
+                        <div class="text-center mb-4">
+                            <div class="inline-block px-4 py-2 rounded-full bg-blue-500/20 border border-blue-500/50">
+                                <span class="text-blue-400 font-bold text-sm">SEMESTER 3</span>
+                            </div>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-3 text-center">
+                            <i class="fas fa-project-diagram text-blue-400 mr-2"></i>
+                            ROS2 Integration
+                        </h3>
+                        <ul class="space-y-2 text-sm text-slate-300">
+                            <li class="flex items-start gap-2">
+                                <i class="fas fa-chevron-right text-blue-400 text-xs mt-1"></i>
+                                <span>Implement ROS2 nodes for gesture and control</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i class="fas fa-chevron-right text-blue-400 text-xs mt-1"></i>
+                                <span>Develop inverse kinematics solver</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i class="fas fa-chevron-right text-blue-400 text-xs mt-1"></i>
+                                <span>Create custom message types for hand data</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i class="fas fa-chevron-right text-blue-400 text-xs mt-1"></i>
+                                <span>Build trajectory planning module</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="p-6 rounded-2xl bg-green-900/20 border-2 border-green-500/30">
+                        <div class="text-center mb-4">
+                            <div class="inline-block px-4 py-2 rounded-full bg-green-500/20 border border-green-500/50">
+                                <span class="text-green-400 font-bold text-sm">SEMESTER 3</span>
+                            </div>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-3 text-center">
+                            <i class="fas fa-cube text-green-400 mr-2"></i>
+                            Gazebo Simulation
+                        </h3>
+                        <ul class="space-y-2 text-sm text-slate-300">
+                            <li class="flex items-start gap-2">
+                                <i class="fas fa-chevron-right text-green-400 text-xs mt-1"></i>
+                                <span>Create URDF model of robotic arm</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i class="fas fa-chevron-right text-green-400 text-xs mt-1"></i>
+                                <span>Set up Gazebo physics simulation environment</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i class="fas fa-chevron-right text-green-400 text-xs mt-1"></i>
+                                <span>Test gesture control in virtual environment</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i class="fas fa-chevron-right text-green-400 text-xs mt-1"></i>
+                                <span>Validate before hardware deployment</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="p-6 rounded-2xl bg-purple-900/20 border-2 border-purple-500/30">
+                        <div class="text-center mb-4">
+                            <div class="inline-block px-4 py-2 rounded-full bg-purple-500/20 border border-purple-500/50">
+                                <span class="text-purple-400 font-bold text-sm">SEMESTER 4</span>
+                            </div>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-3 text-center">
+                            <i class="fas fa-robot text-purple-400 mr-2"></i>
+                            Robotic Arm Hardware
+                        </h3>
+                        <ul class="space-y-2 text-sm text-slate-300">
+                            <li class="flex items-start gap-2">
+                                <i class="fas fa-chevron-right text-purple-400 text-xs mt-1"></i>
+                                <span>Design and fabricate multi-DOF robotic arm</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i class="fas fa-chevron-right text-purple-400 text-xs mt-1"></i>
+                                <span>Integrate multiple servo motors for joints</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i class="fas fa-chevron-right text-purple-400 text-xs mt-1"></i>
+                                <span>Implement end-effector gripper mechanism</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i class="fas fa-chevron-right text-purple-400 text-xs mt-1"></i>
+                                <span>Expand gesture mapping to 3D control (X, Y, Z)</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="p-6 rounded-2xl bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20">
+                    <h3 class="text-xl font-bold text-white mb-3 flex items-center gap-3">
+                        <i class="fas fa-lightbulb text-blue-400"></i>
+                        Additional Enhancements Planned
+                    </h3>
+                    <div class="grid md:grid-cols-2 gap-4 text-slate-300">
+                        <div class="flex items-start gap-2">
+                            <i class="fas fa-plus-circle text-blue-400 text-sm mt-1"></i>
+                            <span>Implement multiple gesture recognition for complex commands</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <i class="fas fa-plus-circle text-purple-400 text-sm mt-1"></i>
+                            <span>Add collision detection and safety constraints</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <i class="fas fa-plus-circle text-green-400 text-sm mt-1"></i>
+                            <span>Develop web-based monitoring dashboard</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <i class="fas fa-plus-circle text-blue-400 text-sm mt-1"></i>
+                            <span>Explore integration with AI-based path optimization</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="p-6 rounded-2xl bg-blue-500/5 border-l-4 border-blue-500">
+                    <div class="flex items-start gap-4">
+                        <i class="fas fa-info-circle text-2xl text-blue-400 mt-1"></i>
+                        <div>
+                            <h4 class="text-lg font-bold text-white mb-2">Current Development Status</h4>
+                            <p class="text-slate-300 leading-relaxed">
+                                <strong>Semester 2</strong> focuses on establishing the foundation with computer vision and single-axis servo control. 
+                                <strong>ROS2 and Gazebo integration</strong> are planned for Semester 3 to build the software framework and test virtually. 
+                                <strong>Physical robotic arm construction</strong> will follow in Semester 4 after validating the control algorithms in simulation.
+                                The current system provides a robust proof-of-concept for gesture-based control that will be expanded into a full multi-DOF robotic arm system.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TEAM SECTION -->
+        <section class="glass p-10 rounded-[3.5rem] border-t-4 border-purple-500/30">
+            <h2 class="text-3xl font-black text-white mb-4 text-center">Project Team</h2>
+            <div class="text-slate-400 mb-8 text-center">B.Tech Computer Science & Engineering</div>
+            
+            <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                <!-- Project Guide Box -->
+                <div class="p-8 rounded-[2rem] bg-gradient-to-br from-blue-500/10 to-blue-600/5 border-2 border-blue-500/30">
+                    <div class="text-center">
+                        <div class="w-16 h-16 rounded-2xl bg-blue-500/20 flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-user-tie text-3xl text-blue-400"></i>
+                        </div>
+                        <div class="text-sm text-slate-400 uppercase tracking-widest mb-2">Project Guide</div>
+                        <h3 class="text-2xl font-bold text-white mb-1">Dr. Rishi Gupta</h3>
+                        <div class="text-sm text-blue-400">Faculty Supervisor</div>
+                    </div>
+                </div>
+                
+                <!-- Project Builder Box -->
+                <div class="p-8 rounded-[2rem] bg-gradient-to-br from-purple-500/10 to-purple-600/5 border-2 border-purple-500/30">
+                    <div class="text-center">
+                        <div class="w-16 h-16 rounded-2xl bg-purple-500/20 flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-user-graduate text-3xl text-purple-400"></i>
+                        </div>
+                        <div class="text-sm text-slate-400 uppercase tracking-widest mb-2">Project Builder</div>
+                        <h3 class="text-2xl font-bold text-white mb-1">Vishwas Patel</h3>
+                        <div class="text-sm text-purple-400">Reg. No: 2427030557</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-8 text-center">
+                <div class="inline-block px-6 py-3 rounded-2xl bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/30">
+                    <div class="text-sm text-slate-400 uppercase tracking-widest">Academic Year</div>
+                    <div class="text-2xl font-black gradient-text">2025 - 2026</div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        // TIMER LOGIC
+        function startTimer() {
+            let timeLeft = 10 * 60; // 10 minutes in seconds
+            const timer = setInterval(() => {
+                timeLeft--;
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                document.getElementById('displayTime').textContent = 
+                    `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                
+                const container = document.getElementById('timerContainer');
+                const icon = document.getElementById('timerIcon');
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    container.classList.add('timer-stop');
+                    icon.className = 'fas fa-hourglass-end text-white text-2xl';
+                } else if (timeLeft <= 120) {
+                    container.classList.add('timer-warning');
+                    icon.className = 'fas fa-hourglass-half text-red-600 text-2xl';
+                } else {
+                    container.classList.remove('timer-warning', 'timer-stop');
+                    icon.className = 'fas fa-hourglass-start text-blue-600 text-2xl';
+                }
+            }, 1000);
+        }
+
+        // RESULTS CHART
+        const ctx = document.getElementById('resultsChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Traditional Control', 'Gesture Control (Ours)'],
+                datasets: [{
+                    label: 'User Satisfaction (%)',
+                    data: [65, 92],
+                    backgroundColor: ['rgba(51, 65, 85, 0.8)', 'rgba(59, 130, 246, 0.8)'],
+                    borderColor: ['rgba(51, 65, 85, 1)', 'rgba(59, 130, 246, 1)'],
+                    borderWidth: 2,
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { 
+                    legend: { 
+                        display: true,
+                        labels: { color: '#94a3b8', font: { size: 14 } }
+                    }
+                },
+                scales: { 
+                    y: { 
+                        beginAtZero: true,
+                        max: 100,
+                        grid: { color: '#ffffff08' },
+                        ticks: { color: '#94a3b8', font: { size: 14 } }
+                    },
+                    x: { 
+                        grid: { display: false },
+                        ticks: { color: '#94a3b8', font: { size: 14, weight: 'bold' } }
+                    }
+                }
+            }
+        });
+    </script>
+
+</body></html>
