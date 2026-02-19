@@ -1,10 +1,10 @@
-# 🤖 Gesture-Controlled Robotic Arm using Computer Vision
+#  Gesture-Controlled Robotic Arm using Computer Vision
 
 A real-time gesture-controlled robotic arm system that uses **MediaPipe** and **OpenCV** to track hand movements and control a servo motor via **ESP32**. The project enables intuitive, contactless human–robot interaction with low latency and visual feedback.
 
 ---
 
-## 📌 Project Overview
+## Project Overview
 
 Traditional robotic control relies on physical interfaces such as joysticks and buttons, which limit natural interaction. This project demonstrates an alternative approach using computer vision to interpret human hand gestures and convert them into robotic motion.
 
@@ -12,18 +12,18 @@ The system captures live video from a webcam, detects hand landmarks using Media
 
 ---
 
-## ✨ Key Features
+##  Key Features
 
-* 🎯 Real-time hand tracking (21 landmarks)
-* ⚡ Low-latency gesture-to-servo control
-* 🔌 Serial communication with ESP32
-* 📺 OLED-based live angle feedback
-* 🧠 Proportional mapping algorithm
-* 🖥️ Interactive project website (GitHub Pages)
+* - Real-time hand tracking (21 landmarks)
+* - Low-latency gesture-to-servo control
+* - Serial communication with ESP32
+* - OLED-based live angle feedback
+* - Proportional mapping algorithm
+* - Interactive project website (GitHub Pages)
 
 ---
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 **Software**
 
@@ -42,7 +42,7 @@ The system captures live video from a webcam, detects hand landmarks using Media
 
 ---
 
-## 🏗️ System Architecture
+##  System Architecture
 
 ```
 Webcam → OpenCV → MediaPipe → Mapping Algorithm → ESP32 → Servo Motor → OLED
@@ -60,7 +60,7 @@ Webcam → OpenCV → MediaPipe → Mapping Algorithm → ESP32 → Servo Motor 
 
 ---
 
-## 📂 Repository Structure
+##  Repository Structure
 
 ```
 gesture-controlled-robotic-arm/
@@ -84,34 +84,34 @@ gesture-controlled-robotic-arm/
 
 ---
 
-## ⚙️ Installation & Setup
+##  Installation & Setup
 
-### 1️⃣ Clone the Repository
+###  Clone the Repository
 
-```bash
+```
 git clone https://github.com/vishy-ui/gesture-controlled-robotic-arm.git
 cd gesture-controlled-robotic-arm
 ```
 
 ---
 
-### 2️⃣ Create Virtual Environment (Recommended)
+###  Create Virtual Environment (Recommended)
 
 **Windows (PowerShell)**
 
-```bash
+```
 python -m venv venv
 venv\Scripts\activate
 ```
 
 **Windows (CMD)**
 
-```bash
+```
 python -m venv venv
 venv\Scripts\activate.bat
 ```
 
-### 3️⃣ Install Dependencies
+###  Install Dependencies
 
 ```bash
 pip install --upgrade pip
@@ -120,15 +120,15 @@ pip install -r requirements.txt
 
 ---
 
-### 4️⃣ Run the Vision Module
+###  Run the Vision Module
 
-```bash
+```
 python opencv_code/test_arm.py
 ```
 
 ---
 
-### 5️⃣ Upload ESP32 Firmware
+###  Upload ESP32 Firmware
 
 1. Open Arduino IDE
 2. Navigate to `esp32_code/`
@@ -137,17 +137,17 @@ python opencv_code/test_arm.py
 
 ---
 
-## 🌐 Live Project
+## Live Project
 
-🔗 **Website:**
+ **Website:**
 https://vishy-ui.github.io/gesture-controlled-robotic-arm/
 
-🔗 **Repository:**
+ **Repository:**
 https://github.com/vishy-ui/gesture-controlled-robotic-arm
 
 ---
 
-## 🚧 Challenges Faced
+##  Challenges Faced
 
 * Maintaining stable hand detection under varying lighting
 * Reducing serial communication latency
@@ -156,7 +156,7 @@ https://github.com/vishy-ui/gesture-controlled-robotic-arm
 
 ---
 
-## 🔮 Future Work
+##  Future Work
 
 * Multi-DOF robotic arm control
 * ROS2 integration
@@ -166,7 +166,7 @@ https://github.com/vishy-ui/gesture-controlled-robotic-arm
 
 ---
 
-## 👨‍💻 Author
+##  Author
 
 **Vishwas Patel**
 B.Tech Computer Science & Engineering
@@ -177,6 +177,6 @@ Dr. Rishi Gupta
 
 ---
 
-## 📜 License
+##  License
 
 This project is developed for academic and research purposes.
